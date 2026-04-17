@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>ChordsLibrary.com</title>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;500;700&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:Poppins,sans-serif;background:linear-gradient(135deg,#0f172a,#1e293b);color:#e2e8f0;text-align:center}
+h1{margin:25px 0}
+
+.nav{display:flex;justify-content:center;gap:18px;margin-bottom:25px}
+.nav button{padding:10px 20px;border-radius:30px;border:1px solid rgba(255,255,255,.15);background:rgba(255,255,255,.05);color:#e2e8f0;cursor:pointer;transition:.3s}
+.nav button:hover{background:linear-gradient(135deg,#38bdf8,#6366f1);transform:scale(1.05)}
+
+.section{display:none;padding:20px}
+.active{display:block}
+
+select{padding:10px;margin:10px;border-radius:10px}
+
+button.action{padding:10px 14px;margin:10px;border-radius:10px;border:none;background:linear-gradient(135deg,#6366f1,#38bdf8);color:#fff;cursor:pointer;transition:.3s}
+button.action:hover{transform:scale(1.05);box-shadow:0 5px 20px rgba(56,189,248,.6)}
+
+.card{background:rgba(255,255,255,.05);padding:15px;margin:12px auto;border-radius:18px;width:300px;transition:.3s;cursor:pointer}
+.card:hover{transform:translateY(-6px) scale(1.05);box-shadow:0 10px 30px rgba(56,189,248,.5)}
+</style>
+</head>
+<body>
+
+<h1>ChordsLibrary.com</h1>
+
+<div class="nav">
+<button onclick="showPage('home')">Home</button>
+<button onclick="showPage('library')">Chord Library</button>
+<button onclick="showPage('scales')">Scales</button>
+<button onclick="showPage('contact')">Contact</button>
+</div>
+
+<div id="home" class="section active">
+<h2>Welcome to Chords Library</h2>
+<button class="action" onclick="showPage('library')">Explore Chords</button>
+</div>
+
+<div id="library" class="section">
+<h2>Chord Library</h2>
+<select id="root">
+<option>C</option><option>C#</option><option>D</option><option>D#</option>
+<option>E</option><option>F</option><option>F#</option><option>G</option>
+<option>G#</option><option>A</option><option>A#</option><option>B</option>
+</select>
+<button class="action" onclick="generateChords()">Find Chords</button>
+<button class="action" onclick="showFormulas()">Formula</button>
+<div id="output"></div>
+</div>
+
+<div id="scales" class="section">
+<h2>Scales</h2>
+
+<select id="scaleRoot">
+<option>C</option><option>C#</option><option>D</option><option>D#</option>
+<option>E</option><option>F</option><option>F#</option><option>G</option>
+<option>G#</option><option>A</option><option>A#</option><option>B</option>
+</select>
+
+<select id="scaleType">
+<option value="major">Major</option>
+<option value="minor">Natural Minor</option>
+<option value="harmonic">Harmonic Minor</option>
+<option value="melodic">Melodic Minor</option>
+<option value="pentMajor">Pentatonic Major</option>
+<option value="pentMinor">Pentatonic Minor</option>
+<option value="blues">Blues</option>
+</select>
+
+<button class="action" onclick="generateScale()">Find Scale</button>
+
+<div id="scaleOutput"></div>
+</div>
+
+<div id="contact" class="section">
+<h2>Contact</h2>
+<p>Email: chordslibrary@gmail.com</p>
+</div>
+
+<script>
+const notes=["C","C#","D","D#","E","F","F#","G","G#","A","A#","B"];
+
+function showPage(page){
+ document.querySelectorAll('.section').forEach(s=>s.classList.remove('active'));
+ const target=document.getElementById(page);
+ if(target) target.classList.add('active');
+ document.querySelectorAll('#output,#scaleOutput').forEach(el=>{if(el) el.innerHTML=""});
+}
+
+function getNote(rootIndex,interval){
+ return notes[(rootIndex+interval)%12];
+}
+
+function generateChords(){
+ const root=document.getElementById("root").value;
+ const rootIndex=notes.indexOf(root);
+
+ const chords=[
+ {name:"Major",f:[0,4,7]},
+ {name:"Minor",f:[0,3,7]},
+ {name:"Diminished",f:[0,3,6]},
+ {name:"Augmented",f:[0,4,8]},
+ {name:"Sus2",f:[0,2,7]},
+ {name:"Sus4",f:[0,5,7]},
+ {name:"Power",f:[0,7]},
+ {name:"Major7",f:[0,4,7,11]},
+ {name:"Minor7",f:[0,3,7,10]},
+ {name:"Dominant7",f:[0,4,7,10]}
+ ];
+
+ const output=document.getElementById("output");
+ output.innerHTML="";
+
+ chords.forEach(ch=>{
+ const n=ch.f.map(i=>getNote(rootIndex,i));
+ const div=document.createElement("div");
+ div.className="card";
+ div.innerHTML=`<h3>${root} ${ch.name}</h3><p>${n.join(" - ")}</p>`;
+ output.appendChild(div);
+ });
+}
+
+function showFormulas(){
+ document.getElementById("output").innerHTML=`
+ <div class="card">Major → 1-3-5</div>
+ <div class="card">Minor → 1-b3-5</div>
+ <div class="card">Diminished → 1-b3-b5</div>
+ <div class="card">Augmented → 1-3-#5</div>
+ <div class="card">Sus2 → 1-2-5</div>
+ <div class="card">Sus4 → 1-4-5</div>
+ <div class="card">Power → 1-5</div>
+ <div class="card">Major7 → 1-3-5-7</div>
+ <div class="card">Minor7 → 1-b3-5-b7</div>
+ <div class="card">Dominant7 → 1-3-5-b7</div>
+ `;
+}
+
+function generateScale(){
+ const root=document.getElementById("scaleRoot").value;
+ const type=document.getElementById("scaleType").value;
+ const rootIndex=notes.indexOf(root);
+
+ const patterns={
+ major:[0,2,4,5,7,9,11],
+ minor:[0,2,3,5,7,8,10],
+ harmonic:[0,2,3,5,7,8,11],
+ melodic:[0,2,3,5,7,9,11],
+ pentMajor:[0,2,4,7,9],
+ pentMinor:[0,3,5,7,10],
+ blues:[0,3,5,6,7,10]
+ };
+
+ const scaleNames={
+ major:"Major",
+ minor:"Natural Minor",
+ harmonic:"Harmonic Minor",
+ melodic:"Melodic Minor",
+ pentMajor:"Pentatonic Major",
+ pentMinor:"Pentatonic Minor",
+ blues:"Blues"
+ };
+
+ const pattern=patterns[type];
+ if(!pattern) return;
+
+ const scale=pattern.map(i=>getNote(rootIndex,i));
+
+ const output=document.getElementById("scaleOutput");
+ output.innerHTML="";
+
+ output.innerHTML=`
+ <div class="card">
+ <h3>${root} ${scaleNames[type]} Scale</h3>
+ <p>${scale.join(" - ")}</p>
+ </div>
+ `;
+}
+</script>
+
+</body>
+</html>
